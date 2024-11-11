@@ -4,40 +4,45 @@ export class ObjFile implements File {
 
     protected data: Object[] = [];
     protected length: number = 0;
+    protected open: boolean = false;
 
     public isEmpty(): boolean {
       return this.length == 0;
     }
 
     public isOpen(): boolean {
-      throw new Error("no implementation");
+      return this.open;
     }
   
     public isClosed(): boolean {
-        throw new Error("no implementation");
+        return !this.open;
     }
   
     public read(): Object[] {
       this.assertIsOpenFile();
-      throw new Error("no implementation");
+      return [...this.data]
     }
 
     public write(data: Object[]): void {
       this.assertIsOpenFile();
-      throw new Error("no implementation");
+      this.data.push(...data);
     }
   
     public delete(): void {
       this.assertIsClosedFile();
-      throw new Error("no implementation");
+      this.data = []
     }
 
     protected assertIsOpenFile(): void {
-        throw new Error("no implementation");
+        if (!this.isOpen()) {
+          throw new Error("File must be open to perform this operation");
+      }
     }
 
     protected assertIsClosedFile(): void {
-        throw new Error("no implementation");
+        if (!this.isClosed()) {
+          throw new Error("File must be closed to perform this operation");
+      }
     }
 
 }

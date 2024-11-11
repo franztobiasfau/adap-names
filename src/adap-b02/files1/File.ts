@@ -1,29 +1,40 @@
 export class File {
 
+    private open: boolean = false;
+    private content: Object[] = [];
+
+    constructor(initialContents: Object[] = []) {
+      this.content = initialContents;
+    }
+
     public isOpen(): boolean {
-      throw new Error("no implementation");
+      return this.open;
     }
   
     public isClosed(): boolean {
-        throw new Error("no implementation");
+        return !this.open;
     }
   
     public read(): Object[] {
       this.assertIsOpenFile();
-      throw new Error("no implementation");
+      return [...this.content];
     }
   
     public delete(): void {
       this.assertIsClosedFile();
-      throw new Error("no implementation");
+      this.content = [];
     }
 
     protected assertIsOpenFile(): void {
-        throw new Error("no implementation");
+        if (!this.isOpen()) {
+          throw new Error("File must be open to perform this operation");
+      }
     }
 
     protected assertIsClosedFile(): void {
-        throw new Error("no implementation");
+        if (!this.isClosed()) {
+          throw new Error("File must be closed to perform this operation");
+      }
     }
 
 }

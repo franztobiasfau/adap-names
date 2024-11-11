@@ -48,5 +48,7 @@ export interface Name {
     append(c: string): void;
 
     remove(i: number): void;
+
+    concat(other: Name): void;
     
 }
