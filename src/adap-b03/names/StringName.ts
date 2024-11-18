@@ -2,33 +2,69 @@ import { Name, DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "./Name";
 import { AbstractName } from "./AbstractName";
 
 export class StringName extends AbstractName {
+  protected name: string = "";
+  protected length: number = 0;
 
-    protected name: string = "";
-    protected length: number = 0;
+  constructor(other: string, delimiter?: string) {
+    super(delimiter);
+    this.init(other);
+  }
 
-    constructor(other: string, delimiter?: string) {
-        super();
-        throw new Error("needs implementation");
-    }
+  public createOrigin(): Name {
+    return new StringName("", ".");
+  }
 
-    getNoComponents(): number {
-        throw new Error("needs implementation");
+  public init(other?: string) {
+    if (other != null || other != undefined) {
+      this.name = this.unmaskComponent(other, this.delimiter); // stored unsmasked
     }
+    this.length = this.splitComponents(this.name, this.delimiter).length;
+  }
 
-    getComponent(i: number): string {
-        throw new Error("needs implementation");
-    }
-    setComponent(i: number, c: string) {
-        throw new Error("needs implementation");
-    }
+  public getNoComponents(): number {
+    return this.length;
+  }
 
-    insert(i: number, c: string) {
-        throw new Error("needs implementation");
-    }
-    append(c: string) {
-        throw new Error("needs implementation");
-    }
-    remove(i: number) {
-        throw new Error("needs implementation");
-    }
+  public getComponent(i: number): string {
+    let components = this.splitComponents(this.name, this.delimiter);
+    if (i < 0 || i >= this.length) throw new Error("Index out of bounds");
+    return components[i];
+  }
+
+  public setComponent(i: number, c: string) {
+    const components = this.splitComponents(this.name, this.delimiter);
+    if (i < 0 || i >= this.length) throw new Error("Index out of bounds");
+    components[i] = c;
+
+    this.name = components.join(this.delimiter);
+  }
+
+  public insert(i: number, c: string) {
+    const components = this.splitComponents(this.name, this.delimiter);
+    if (i < 0 || i > this.length) throw new Error("Index out of bounds");
+    components.splice(i, 0, c);
+    this.name = components.join(this.delimiter);
+    this.length += 1;
+  }
+
+  public append(c: string) {
+    this.name += this.delimiter + c;
+    this.length += 1;
+  }
+
+  public remove(i: number) {
+    const components = this.splitComponents(this.name, this.delimiter);
+    if (i < 0 || i >= this.length) throw new Error("Index out of bounds");
+    components.splice(i, 1);
+    this.name = components.join(this.delimiter);
+    this.length -= 1;
+  }
+
+  /** @methodtype helper-method */
+  protected splitComponents(components: string, delimiter: string) {
+    const unmasked = this.unmaskComponent(components, delimiter); // Unmaskiere die Eingabe
+    const regex = new RegExp(`(?<!\\${ESCAPE_CHARACTER})\\${delimiter}`);
+    return unmasked.split(regex);
+  }
+  
 }
