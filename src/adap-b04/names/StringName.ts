@@ -1,6 +1,7 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
+import { MethodFailureException } from "../common/MethodFailureException";
 
 export class StringName extends AbstractName {
 
@@ -8,8 +9,11 @@ export class StringName extends AbstractName {
     protected noComponents: number = 0;
 
     constructor(other: string, delimiter?: string) {
-        super();
-        throw new Error("needs implementation");
+        super(delimiter);
+        this.assertParaNotNullOrUndefined(other, "other of StringName cannot be null or undefined");
+        this.name = other;
+        this.noComponents = this.getNoComponents();
+        this.assertNameState(other);
     }
 
     public clone(): Name {
@@ -72,4 +76,9 @@ export class StringName extends AbstractName {
         throw new Error("needs implementation");
     }
 
+
+    protected assertNameState(name: string): void {
+        const cond = this.name === name;
+        MethodFailureException.assertCondition(cond, "StringName not correctly consructed");
+    }
 }
