@@ -2,12 +2,11 @@ import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
 
-export class StringName extends AbstractName {
+export class StringArrayName extends AbstractName {
 
-    protected name: string = "";
-    protected noComponents: number = 0;
+    protected components: string[] = [];
 
-    constructor(other: string, delimiter?: string) {
+    constructor(other: string[], delimiter?: string) {
         super();
         throw new Error("needs implementation");
     }
@@ -71,5 +70,4 @@ export class StringName extends AbstractName {
     public concat(other: Name): void {
         throw new Error("needs implementation");
     }
-
 }

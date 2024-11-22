@@ -1,4 +1,5 @@
-import { Name, DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "./Name";
+import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
+import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
 
 export class StringArrayName extends AbstractName {
@@ -19,37 +20,64 @@ export class StringArrayName extends AbstractName {
       other = other.map((c) => this.unmaskComponent(c, this.delimiter)); // stored unmasked
       this.components = [...other];
     }
-  }
 
-  public getNoComponents(): number {
-    return this.components.length;
-  }
+    public clone(): Name {
+        throw new Error("needs implementation");
+    }
 
-  public getComponent(i: number): string {
-    if (i < 0 || i >= this.getNoComponents())
-      throw new Error("Index out of bounds");
-    return this.components[i];
-  }
+    public asString(delimiter: string = this.delimiter): string {
+        throw new Error("needs implementation");
+    }
 
-  public setComponent(i: number, c: string): void {
-    if (i < 0 || i >= this.getNoComponents())
-      throw new Error("Index out of bounds");
-    this.components[i] = this.unmaskComponent(c, this.delimiter);
-  }
+    public toString(): string {
+        throw new Error("needs implementation");
+    }
 
-  public insert(i: number, c: string): void {
-    if (i < 0 || i > this.getNoComponents())
-      throw new Error("Index out of bounds");
-    this.components.splice(i, 0, this.unmaskComponent(c, this.delimiter));
-  }
+    public asDataString(): string {
+        throw new Error("needs implementation");
+    }
 
-  public append(c: string): void {
-    this.components.push(this.unmaskComponent(c, this.delimiter));
-  }
+    public isEqual(other: Name): boolean {
+        throw new Error("needs implementation");
+    }
 
-  public remove(i: number): void {
-    if (i < 0 || i >= this.getNoComponents())
-      throw new Error("Index out of bounds");
-    this.components.splice(i, 1);
-  }
+    public getHashCode(): number {
+        throw new Error("needs implementation");
+    }
+
+    public isEmpty(): boolean {
+        throw new Error("needs implementation");
+    }
+
+    public getDelimiterCharacter(): string {
+        throw new Error("needs implementation");
+    }
+
+    public getNoComponents(): number {
+        throw new Error("needs implementation");
+    }
+
+    public getComponent(i: number): string {
+        throw new Error("needs implementation");
+    }
+
+    public setComponent(i: number, c: string) {
+        throw new Error("needs implementation");
+    }
+
+    public insert(i: number, c: string) {
+        throw new Error("needs implementation");
+    }
+
+    public append(c: string) {
+        throw new Error("needs implementation");
+    }
+
+    public remove(i: number) {
+        throw new Error("needs implementation");
+    }
+
+    public concat(other: Name): void {
+        throw new Error("needs implementation");
+    }
 }
