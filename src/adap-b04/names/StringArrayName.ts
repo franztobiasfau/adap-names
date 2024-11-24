@@ -27,7 +27,7 @@ export class StringArrayName extends AbstractName {
     super.assertAbstractNameIsValid();
     InvalidStateException.assertIsNotNullOrUndefined(
       this.components,
-      "components cannot be null or undefined"
+      "Components cannot be null or undefined"
     );
 
     this.components.forEach((c) => {
