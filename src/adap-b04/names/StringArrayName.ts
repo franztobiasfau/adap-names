@@ -1,73 +1,73 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
+import { InvalidStateException } from "../common/InvalidStateException";
+import { MethodFailureException } from "../common/MethodFailureException";
 
 export class StringArrayName extends AbstractName {
+  protected components: string[] = [];
 
-    protected components: string[] = [];
+  constructor(other: string[], delimiter?: string) {
+    super(delimiter);
+    this.assertHasValidParameter(other, "other cannot be null or undefined");
+    this.init(other);
+    this.assertIsValidStringArrayNameState(other);
+  }
 
-    constructor(other: string[], delimiter?: string) {
-        super();
-        throw new Error("needs implementation");
-    }
+  public createOrigin(): Name {
+    return new StringArrayName(["", "cs", "fau", "Oh"], ".");
+  }
 
-    public clone(): Name {
-        throw new Error("needs implementation");
-    }
+  public init(other: string[]) {
+    this.components = [...other];
+  }
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation");
-    }
+  // methods for assertions (class invariants)
+  protected assertStringArrayNameisValid() {
+    super.assertAbstractNameIsValid();
+    InvalidStateException.assertIsNotNullOrUndefined(
+      this.components,
+      "components cannot be null or undefined"
+    );
 
-    public toString(): string {
-        throw new Error("needs implementation");
-    }
+    this.components.forEach((c) => {
+      InvalidStateException.assertIsNotNullOrUndefined(
+        c,
+        "A component in components is null or undefined"
+      );
+    });
+  }
 
-    public asDataString(): string {
-        throw new Error("needs implementation");
-    }
+  public getNoComponents(): number {
+    return this.components.length;
+  }
 
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation");
-    }
+  public getComponent(i: number): string {
+    throw new Error("needs implementation");
+  }
 
-    public getHashCode(): number {
-        throw new Error("needs implementation");
-    }
+  public setComponent(i: number, c: string) {
+    throw new Error("needs implementation");
+  }
 
-    public isEmpty(): boolean {
-        throw new Error("needs implementation");
-    }
+  public insert(i: number, c: string) {
+    throw new Error("needs implementation");
+  }
 
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation");
-    }
+  public append(c: string) {
+    throw new Error("needs implementation");
+  }
 
-    public getNoComponents(): number {
-        throw new Error("needs implementation");
-    }
+  public remove(i: number) {
+    throw new Error("needs implementation");
+  }
 
-    public getComponent(i: number): string {
-        throw new Error("needs implementation");
-    }
-
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public append(c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public remove(i: number) {
-        throw new Error("needs implementation");
-    }
-
-    public concat(other: Name): void {
-        throw new Error("needs implementation");
-    }
+  // methods for assertions (post-conditions)
+  protected assertIsValidStringArrayNameState(components: String[]): void {
+    const cond = components === this.components;
+    MethodFailureException.assertCondition(
+      cond,
+      "StringArrayName validation failed"
+    );
+  }
 }

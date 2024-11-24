@@ -2,6 +2,7 @@ import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
 import { MethodFailureException } from "../common/MethodFailureException";
+import { InvalidStateException } from "../common/InvalidStateException";
 
 export class StringName extends AbstractName {
 
@@ -10,42 +11,28 @@ export class StringName extends AbstractName {
 
     constructor(other: string, delimiter?: string) {
         super(delimiter);
-        this.assertParaNotNullOrUndefined(other, "other of StringName cannot be null or undefined");
+        this.assertHasValidParameter(other, "other cannot be null or undefined");
+        this.init(other)
+        this.assertIsValidNameState(other);
+    }
+
+    public createOrigin(): Name {
+        return new StringName("", ".");
+    }
+    
+    public init(other: string) {
         this.name = other;
         this.noComponents = this.getNoComponents();
-        this.assertNameState(other);
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation");
-    }
+    // methods for assertions (class invariants)
+    protected assertStringNameIsValid() {
+        super.assertAbstractNameIsValid();
+        InvalidStateException.assertIsNotNullOrUndefined(this.name, "");
+        InvalidStateException.assertIsNotNullOrUndefined(this.noComponents, "")
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation");
-    }
-
-    public toString(): string {
-        throw new Error("needs implementation");
-    }
-
-    public asDataString(): string {
-        throw new Error("needs implementation");
-    }
-
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation");
-    }
-
-    public getHashCode(): number {
-        throw new Error("needs implementation");
-    }
-
-    public isEmpty(): boolean {
-        throw new Error("needs implementation");
-    }
-
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation");
+        const cond = this.noComponents === this.getNoComponents();
+        InvalidStateException.assertCondition(cond, "");
     }
 
     public getNoComponents(): number {
@@ -72,13 +59,10 @@ export class StringName extends AbstractName {
         throw new Error("needs implementation");
     }
 
-    public concat(other: Name): void {
-        throw new Error("needs implementation");
-    }
 
-
-    protected assertNameState(name: string): void {
+    // methods for assertions (post-conditions)
+    protected assertIsValidNameState(name: string): void {
         const cond = this.name === name;
-        MethodFailureException.assertCondition(cond, "StringName not correctly consructed");
+        MethodFailureException.assertCondition(cond, "StringName validation failed");
     }
 }
