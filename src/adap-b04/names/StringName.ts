@@ -18,7 +18,7 @@ export class StringName extends AbstractName {
     }
 
     public createOrigin(): Name {
-        return new StringName("", ".");
+        return new StringName("", DEFAULT_DELIMITER);
     }
     
     public init(other: string): void {
@@ -42,7 +42,7 @@ export class StringName extends AbstractName {
     }
 
     public getNoComponents(): number {
-        return this.name.length;
+        return this.asStringArrayName().length;
     }
 
     public getComponent(i: number): string {
@@ -113,7 +113,7 @@ export class StringName extends AbstractName {
     }
 
     /** @methodtype helper-method */
-    private createRegexForDelimiter(delimiter: string): RegExp {
+    protected createRegexForDelimiter(delimiter: string): RegExp {
         const regexEscapedDelimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         return new RegExp(`(?<!\\${ESCAPE_CHARACTER})${regexEscapedDelimiter}`, "g");
     }
@@ -170,7 +170,7 @@ export class StringName extends AbstractName {
                 }
                 i_new++; // Springe in der neuen Liste weiter
             } else if (operationType === "remove" && i_orig === index) {
-                i_orig++; // Überspringe den entfernten Index in der alten Liste
+                i_orig++; // Überspringe den removed Index in der alten Liste
             } else if (operationType === "set" && i_orig === index) {
                 if (stringArrayName[i_new] !== component) {
                     this.reset(original, originalNoComponents);

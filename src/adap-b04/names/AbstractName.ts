@@ -35,25 +35,22 @@ export abstract class AbstractName implements Name {
     return cloned;
   }
 
-  public asString(delimiter: string = this.delimiter): string {
+  public asString(delimiter?: string): string {
+    delimiter = delimiter ?? this.delimiter;
     this.assertHasValidDelimiter(delimiter);
 
-    let components: string[] = [];
+    const components: string[] = [];
 
     for (let i = 0; i < this.getNoComponents(); i++) {
-      components.push(
-        this.getComponent(i).replaceAll(
-          `${ESCAPE_CHARACTER}${this.getDelimiterCharacter()}`,
-          this.getDelimiterCharacter()
-        )
-      );
+        const component = this.getComponent(i);   
+        components.push(component.replaceAll(`${ESCAPE_CHARACTER}${this.getDelimiterCharacter()}`, this.getDelimiterCharacter()));
     }
 
     return components.join(delimiter);
-  }
-
+}
+  
   public toString(): string {
-    throw this.asDataString();
+    return this.asDataString();
   }
 
   public asDataString(): string {
@@ -61,24 +58,24 @@ export abstract class AbstractName implements Name {
     const escapeWithDelimiter = ESCAPE_CHARACTER + this.getDelimiterCharacter();
 
     for (let i = 0; i < this.getNoComponents(); i++) {
-        const component = this.getComponent(i)
-            .replaceAll(ESCAPE_CHARACTER, ESCAPE_CHARACTER + ESCAPE_CHARACTER)
-            .replaceAll(this.getDelimiterCharacter(), escapeWithDelimiter);
-        components.push(component);
+      const component = this.getComponent(i)
+        .replaceAll(this.getDelimiterCharacter(), escapeWithDelimiter);
+      components.push(component);
     }
 
     const name = components.join(this.getDelimiterCharacter());
 
+    // Return a JSON-encoded object
     const data = {
-        dataString: name,
-        delimiter: this.getDelimiterCharacter()
+      dataString: name,
+      delimiter: this.getDelimiterCharacter(),
     };
 
-    return JSON.stringify(data);
+    return JSON.stringify(data); // To ensure it's a machine-readable JSON string
   }
 
   public isEqual(other: Name): boolean {
-    this.assertHasValidParameter(other, "other cannot be null or undefined")
+    this.assertHasValidParameter(other, "other cannot be null or undefined");
     if (this.getNoComponents() !== other.getNoComponents()) return false;
 
     for (let i = 0; i < this.getNoComponents(); i++) {
@@ -117,7 +114,7 @@ export abstract class AbstractName implements Name {
   abstract remove(i: number): void;
 
   public concat(other: Name): void {
-    this.assertHasValidParameter(other, "other cannot be null or undefined")
+    this.assertHasValidParameter(other, "other cannot be null or undefined");
     if (other.getDelimiterCharacter() !== this.getDelimiterCharacter()) {
       throw new Error("Delimiters do not match");
     }
@@ -125,7 +122,7 @@ export abstract class AbstractName implements Name {
     let copy = Object.create(Object.getPrototypeOf(this));
     copy.delimiter = this.getDelimiterCharacter();
     for (let i = 0; i < this.getNoComponents(); i++) {
-      copy.append(this.getComponent(i));    
+      copy.append(this.getComponent(i));
     }
 
     for (let i = 0; i <= other.getNoComponents(); ++i) {
@@ -162,18 +159,26 @@ export abstract class AbstractName implements Name {
   }
 
   protected assertIsValidCloned(cloned: Name): void {
-    MethodFailureException.assertIsNotNullOrUndefined(cloned, "clone is null or undefined");
-    const cond = (this.isEqual(cloned) && this !== cloned);
+    MethodFailureException.assertIsNotNullOrUndefined(
+      cloned,
+      "clone is null or undefined"
+    );
+    const cond = this.isEqual(cloned) && this !== cloned;
     MethodFailureException.assertCondition(cond, "Clone validation failed");
   }
 
   protected assertIsValidHashCode(other: Name): void {
     const cond = other.getHashCode() === this.getHashCode();
-    MethodFailureException.assertCondition(cond, "HashCode validation failed")
+    MethodFailureException.assertCondition(cond, "HashCode validation failed");
   }
 
   protected assertIsValidConcatComponent(copy: Name, other: Name): void {
-    const cond = this.getNoComponents() === copy.getNoComponents() + other.getNoComponents();
-    MethodFailureException.assertCondition(cond, "Concat Components validation failed");
+    const cond =
+      this.getNoComponents() ===
+      copy.getNoComponents() + other.getNoComponents();
+    MethodFailureException.assertCondition(
+      cond,
+      "Concat Components validation failed"
+    );
   }
 }
