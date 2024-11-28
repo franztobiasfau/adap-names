@@ -1,7 +1,8 @@
+import { ExceptionType, AssertionDispatcher } from "../common/AssertionDispatcher";
+
 import { Name } from "../names/Name";
 import { StringName } from "../names/StringName";
 import { Directory } from "./Directory";
-import { IllegalArgumentException } from "../common/IllegalArgumentException";
 
 export class RootNode extends Directory {
 
@@ -24,13 +25,16 @@ export class RootNode extends Directory {
     }
 
     public move(to: Directory): void {
-        this.assertNodeMove(to);
         // null operation
     }
 
     protected doSetBaseName(bn: string): void {
-        this.assertNodeSetBaseName(bn);
         // null operation
+    }
+
+    protected assertIsValidBaseName(bn: string, et: ExceptionType): void {
+        const condition: boolean = (bn == ""); // Root must have "" as base name
+        AssertionDispatcher.dispatch(et, condition, "invalid base name");
     }
 
 }

@@ -6,17 +6,22 @@ export class Node {
   protected baseName: string = "";
   protected parentNode: Directory;
 
-  constructor(bn: string, pn: Directory) {
-    this.assertNodeConstructor(bn,pn);
-    this.doSetBaseName(bn);
-    this.parentNode = pn;
-  }
+    constructor(bn: string, pn: Directory) {
+        this.doSetBaseName(bn);
+        this.parentNode = pn; // why oh why do I have to set this
+        this.initialize(pn);
+    }
 
-  public move(to: Directory): void {
-    this.assertNodeMove(to);
-    this.parentNode.remove(this);
-    to.add(this);
-  }
+    protected initialize(pn: Directory): void {
+        this.parentNode = pn;
+        this.parentNode.add(this);
+    }
+
+    public move(to: Directory): void {
+        this.parentNode.remove(this);
+        to.add(this);
+        this.parentNode = to;
+    }
 
   public getFullName(): Name {
     const result: Name = this.parentNode.getFullName();
@@ -42,9 +47,9 @@ export class Node {
     this.baseName = bn;
   }
 
-  public getParentNode(): Node {
-    return this.parentNode;
-  }
+    public getParentNode(): Directory {
+        return this.parentNode;
+    }
 
   // Implementing preconditions methods
   protected assertNodeConstructor(bn: string, pn: Directory): void {

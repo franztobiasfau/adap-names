@@ -1,14 +1,11 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
-import { AbstractName } from "./AbstractName";
 
-export class StringName extends AbstractName {
+export abstract class AbstractName implements Name {
 
-    protected name: string = "";
-    protected noComponents: number = 0;
+    protected delimiter: string = DEFAULT_DELIMITER;
 
-    constructor(other: string, delimiter?: string) {
-        super();
+    constructor(delimiter: string = DEFAULT_DELIMITER) {
         throw new Error("needs implementation or deletion");
     }
 
@@ -18,6 +15,10 @@ export class StringName extends AbstractName {
 
     public asString(delimiter: string = this.delimiter): string {
         throw new Error("needs implementation or deletion");
+    }
+
+    public toString(): string {
+        return this.asDataString();
     }
 
     public asDataString(): string {
@@ -40,29 +41,14 @@ export class StringName extends AbstractName {
         throw new Error("needs implementation or deletion");
     }
 
-    public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
-    }
+    abstract getNoComponents(): number;
 
-    public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
-    }
+    abstract getComponent(i: number): string;
+    abstract setComponent(i: number, c: string): void;
 
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public append(c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public remove(i: number) {
-        throw new Error("needs implementation or deletion");
-    }
+    abstract insert(i: number, c: string): void;
+    abstract append(c: string): void;
+    abstract remove(i: number): void;
 
     public concat(other: Name): void {
         throw new Error("needs implementation or deletion");

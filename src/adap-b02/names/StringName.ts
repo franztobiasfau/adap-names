@@ -7,6 +7,7 @@ export class StringName implements Name {
     protected name: string = "";
     protected noComponents: number = 0;
 
+<<<<<<< HEAD
   constructor(other: string, delimiter?: string) {
     this.name = other;
     this.delimiter = delimiter ?? DEFAULT_DELIMITER; // Providing Fallback with the ?? Operator
@@ -32,15 +33,29 @@ export class StringName implements Name {
             .join("") // Rejoin component after escaping ESCAPE_CHARACTER
       ).join(this.delimiter); // Rejoin components with delimiter
   }
+=======
+    constructor(other: string, delimiter?: string) {
+        throw new Error("needs implementation or deletion");
+    }
+
+    public asString(delimiter: string = this.delimiter): string {
+        throw new Error("needs implementation or deletion");
+    }
+
+    public asDataString(): string {
+        throw new Error("needs implementation or deletion");
+    }
+>>>>>>> e42a56b49aa591786b0ab19e98e56ff3d3fa09d5
 
     public getDelimiterCharacter(): string {
-        throw new Error("needs implementation");
+        throw new Error("needs implementation or deletion");
     }
 
     public isEmpty(): boolean {
-        throw new Error("needs implementation");
+        throw new Error("needs implementation or deletion");
     }
 
+<<<<<<< HEAD
   public getNoComponents(): number {
     return this.name.length > 0 ? this.name.split(this.delimiter).length : 0;
   }
@@ -107,3 +122,34 @@ export class StringName implements Name {
     this.length += otherComponents.length; // Update length
   }
 }
+=======
+    public getNoComponents(): number {
+        throw new Error("needs implementation or deletion");
+    }
+
+    public getComponent(x: number): string {
+        throw new Error("needs implementation or deletion");
+    }
+
+    public setComponent(n: number, c: string): void {
+        throw new Error("needs implementation or deletion");
+    }
+
+    public insert(n: number, c: string): void {
+        throw new Error("needs implementation or deletion");
+    }
+
+    public append(c: string): void {
+        throw new Error("needs implementation or deletion");
+    }
+
+    public remove(n: number): void {
+        throw new Error("needs implementation or deletion");
+    }
+
+    public concat(other: Name): void {
+        throw new Error("needs implementation or deletion");
+    }
+
+}
+>>>>>>> e42a56b49aa591786b0ab19e98e56ff3d3fa09d5
