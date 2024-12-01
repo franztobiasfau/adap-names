@@ -1,6 +1,7 @@
 import { Node } from "./Node";
 import { Directory } from "./Directory";
 import { MethodFailedException } from "../common/MethodFailedException";
+import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
 
 enum FileState {
     OPEN,
@@ -17,24 +18,14 @@ export class File extends Node {
     }
 
     public open(): void {
+        this.assertIsValidFileState();
         // do something
     }
 
     public read(noBytes: number): Int8Array {
+        this.assertIsValidFileState();
         let result: Int8Array = new Int8Array(noBytes);
         // do something
-
-        let tries: number = 0;
-        for (let i: number = 0; i < noBytes; i++) {
-            try {
-                result[i] = this.readNextByte();
-            } catch(ex) {
-                tries++;
-                if (ex instanceof MethodFailedException) {
-                    // Oh no! What @todo?!
-                }
-            }
-        }
 
         return result;
     }
@@ -44,6 +35,7 @@ export class File extends Node {
     }
 
     public close(): void {
+        this.assertIsValidFileState();
         // do something
     }
 
@@ -51,4 +43,13 @@ export class File extends Node {
         return this.state;
     }
 
+    public findNodes(bn: string): Set<Node> {
+        return super.findNodes(bn);
+    }
+
+    // methods for assertions (preconditions)
+    protected assertIsValidFileState(): void {
+        const condition: boolean = (this.state === this.doGetFileState());
+        AssertionDispatcher.dispatch(ExceptionType.CLASS_INVARIANT, condition, "invalid file state");
+      }
 }

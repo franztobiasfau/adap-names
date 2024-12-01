@@ -2,8 +2,9 @@ import {
   ExceptionType,
   AssertionDispatcher,
 } from "../common/AssertionDispatcher";
-import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { Exception } from "../common/Exception";
 import { InvalidStateException } from "../common/InvalidStateException";
+import { ServiceFailureException } from "../common/ServiceFailureException";
 
 import { Name } from "../names/Name";
 import { Directory } from "./Directory";
@@ -13,25 +14,23 @@ export class Node {
   protected parentNode: Directory;
 
   constructor(bn: string, pn: Directory) {
-    this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
-
     this.doSetBaseName(bn);
     this.parentNode = pn; // why oh why do I have to set this
     this.initialize(pn);
-
+    console.log(
+      `DEBUG: Node created with baseName='${bn}' and parentNode='${pn.baseName}`
+    );
     this.assertClassInvariants();
   }
 
   protected initialize(pn: Directory): void {
+    this.assertIsNotNullOrUndefined(pn, ExceptionType.PRECONDITION);
     this.parentNode = pn;
     this.parentNode.add(this);
-
-    console.log(
-      `DEBUG: Initializing Node with baseName='${this.getBaseName()}' and parent='${this.getFullName()}'`
-    );
   }
 
   public move(to: Directory): void {
+    this.assertIsNotNullOrUndefined(to, ExceptionType.PRECONDITION);
     this.parentNode.remove(this);
     to.add(this);
     this.parentNode = to;
@@ -52,11 +51,11 @@ export class Node {
   }
 
   public rename(bn: string): void {
+    this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
     this.doSetBaseName(bn);
   }
 
   protected doSetBaseName(bn: string): void {
-    console.log(`DEBUG: doSetBaseName() to: '${bn}'`);
     this.baseName = bn;
   }
 
@@ -69,31 +68,54 @@ export class Node {
    * @param bn basename of node being searched for
    */
   public findNodes(bn: string): Set<Node> {
-    // Aktuelle Node
-    console.log(`DEBUG: Current findNodes baseName: ${this.getBaseName()}`);
     const result: Set<Node> = new Set<Node>();
 
-    if (this.getBaseName() === bn) {
-      result.add(this);
+    try {
+      this.assertIsNotEmpty(bn, ExceptionType.PRECONDITION);
+
+      if (this.getBaseName() === bn) {
+        result.add(this);
+      }
+
+      this.assertClassInvariants();
+    } catch (error) {
+      throw new ServiceFailureException(
+        `Failed to find nodes with basename '${bn}'`,
+        error as Exception
+      );
     }
-    // if (this instanceof Directory) {
-    //     const directory = this as Directory;
-    //     for (let child of directory.getChildNodes()) {
-    //         for (let found of child.findNodes(bn)) {
-    //             result.add(found);
-    //         }
-    //     }
-    // }
+
     return result;
   }
 
   protected assertClassInvariants(): void {
     const bn: string = this.doGetBaseName();
-    this.assertIsValidBaseName(bn, ExceptionType.CLASS_INVARIANT);
+    const pn: Directory = this.getParentNode();
+    
+    try {
+      this.assertIsValidBaseName(bn, ExceptionType.CLASS_INVARIANT);
+      this.assertIsNotNullOrUndefined(pn, ExceptionType.CLASS_INVARIANT);
+    } catch (error) {
+      if (error instanceof Exception) {
+        throw new InvalidStateException("Class invariant violation", error);
+      }
+      throw error; // Unbekannter Fehler
+    }
   }
 
+  // methods for assertions (preconditions)
   protected assertIsValidBaseName(bn: string, et: ExceptionType): void {
     const condition: boolean = bn != "";
-    AssertionDispatcher.dispatch(et, condition, "invalid base name");
+    AssertionDispatcher.dispatch(et, condition, "invalid base name for node");
+  }
+
+  protected assertIsNotNullOrUndefined(o: Object, et: ExceptionType): void {
+    const condition: boolean = o !== null || o !== undefined;
+    AssertionDispatcher.dispatch(et, condition, "cannot be null or undefined");
+  }
+
+  protected assertIsNotEmpty(bn: string, et: ExceptionType): void {
+    const condition: boolean = bn.length > 0;
+    AssertionDispatcher.dispatch(et, condition, "cennot be empty");
   }
 }

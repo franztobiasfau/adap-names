@@ -18,6 +18,7 @@ export class RootNode extends Directory {
     }
 
     protected initialize(pn: Directory): void {
+        this.assertIsNotNullOrUndefined(pn, ExceptionType.PRECONDITION);
         this.parentNode = this;
     }
 
@@ -35,7 +36,7 @@ export class RootNode extends Directory {
 
     protected assertIsValidBaseName(bn: string, et: ExceptionType): void {
         const condition: boolean = (bn == ""); // Root must have "" as base name
-        AssertionDispatcher.dispatch(et, condition, "invalid base name");
+        AssertionDispatcher.dispatch(et, condition, "invalid base name for rootNode");
     }
 
 }
