@@ -14,7 +14,6 @@ export class RootNode extends Directory {
 
     constructor() {
         super("", new Object as Directory);
-        console.log(`DEBUG: RootNode initialized.`);
     }
 
     protected initialize(pn: Directory): void {

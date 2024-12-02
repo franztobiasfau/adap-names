@@ -1,5 +1,6 @@
 import { Node } from "./Node";
 import { Directory } from "./Directory";
+import { ExceptionType } from "../common/AssertionDispatcher";
 
 export class Link extends Node {
   protected targetNode: Node | null = null;
@@ -17,6 +18,7 @@ export class Link extends Node {
   }
 
   public setTargetNode(target: Node): void {
+    this.assertIsNotNullOrUndefined(target, ExceptionType.PRECONDITION);
     this.targetNode = target;
   }
 
@@ -26,6 +28,9 @@ export class Link extends Node {
   }
 
   public rename(bn: string): void {
+    this.assertIsNotNullOrUndefined(bn, ExceptionType.PRECONDITION);
+    this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
+
     const target = this.ensureTargetNode(this.targetNode);
     target.rename(bn);
   }

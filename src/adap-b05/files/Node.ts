@@ -17,9 +17,7 @@ export class Node {
     this.doSetBaseName(bn);
     this.parentNode = pn; // why oh why do I have to set this
     this.initialize(pn);
-    console.log(
-      `DEBUG: Node created with baseName='${bn}' and parentNode='${pn.baseName}`
-    );
+
     this.assertClassInvariants();
   }
 
@@ -91,7 +89,7 @@ export class Node {
   protected assertClassInvariants(): void {
     const bn: string = this.doGetBaseName();
     const pn: Directory = this.getParentNode();
-    
+
     try {
       this.assertIsValidBaseName(bn, ExceptionType.CLASS_INVARIANT);
       this.assertIsNotNullOrUndefined(pn, ExceptionType.CLASS_INVARIANT);
@@ -99,7 +97,7 @@ export class Node {
       if (error instanceof Exception) {
         throw new InvalidStateException("Class invariant violation", error);
       }
-      throw error; // Unbekannter Fehler
+      throw error; // Unkown
     }
   }
 

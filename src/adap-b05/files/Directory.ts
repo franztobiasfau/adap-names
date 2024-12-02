@@ -1,3 +1,4 @@
+import { ExceptionType } from "../common/AssertionDispatcher";
 import { Node } from "./Node";
 
 export class Directory extends Node {
@@ -5,14 +6,15 @@ export class Directory extends Node {
 
   constructor(bn: string, pn: Directory) {
     super(bn, pn);
-    console.log(`DEBUG: Directory created with baseName='${bn}'`);
   }
 
   public add(cn: Node): void {
+    this.assertIsNotNullOrUndefined(cn, ExceptionType.PRECONDITION);
     this.childNodes.add(cn);
   }
 
   public remove(cn: Node): void {
+    this.assertIsNotNullOrUndefined(cn, ExceptionType.PRECONDITION);
     this.childNodes.delete(cn); // Yikes! Should have been called remove
   }
 
@@ -24,7 +26,7 @@ export class Directory extends Node {
     const result: Set<Node> = super.findNodes(bn);
 
     for (const child of this.childNodes) {
-        child.findNodes(bn).forEach(node => result.add(node)); //Rekursive für alle childNodes
+        child.findNodes(bn).forEach(node => result.add(node));
     }
 
     return result;
