@@ -1,5 +1,3 @@
-import { ExceptionType, AssertionDispatcher } from "../common/AssertionDispatcher";
-
 import { Name } from "../names/Name";
 import { StringName } from "../names/StringName";
 import { Directory } from "./Directory";

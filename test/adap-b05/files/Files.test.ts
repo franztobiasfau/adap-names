@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
 
+import { Exception } from "../../../src/adap-b05/common/Exception";
+import { InvalidStateException } from "../../../src/adap-b05/common/InvalidStateException";
+import { ServiceFailureException } from "../../../src/adap-b05/common/ServiceFailureException";
+
 import { StringName } from "../../../src/adap-b05/names/StringName";
 
 import { Node } from "../../../src/adap-b05/files/Node";
