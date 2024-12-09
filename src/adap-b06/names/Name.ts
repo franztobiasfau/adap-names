@@ -29,15 +29,15 @@ export interface Name extends Cloneable, Printable, Equality {
     getComponent(i: number): string;
 
     /** Expects that new Name component c is properly masked */
-    setComponent(i: number, c: string): void;
+    setComponent(i: number, c: string): Name;
 
     /** Expects that new Name component c is properly masked */
-    insert(i: number, c: string): void;
+    insert(i: number, c: string): Name;
 
     /** Expects that new Name component c is properly masked */
-    append(c: string): void;
+    append(c: string): Name;
 
-    remove(i: number): void;
+    remove(i: number): Name;
     
     concat(other: Name): Name;
     

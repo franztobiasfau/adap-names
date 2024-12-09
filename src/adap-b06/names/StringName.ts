@@ -10,23 +10,15 @@ export class StringName extends AbstractName {
   private readonly noComponents: number;
 
   constructor(name: string, delimiter?: string) {
-    super(delimiter);
-    IllegalArgumentException.assert(
-      name != null,
-      "name cannot be null or undefined"
-    );
-    this.name = name;
-    this.noComponents = this.splitComponents(this.name, this.delimiter).length;
-    this.assertIsValidNameState(this.name);
-  }
-
-  // methods for assertions (class invariants)
-  protected assertStringNameIsValid(): void {
-    super.assertAbstractNameIsValid();
     InvalidStateException.assert(
-      this.name != null,
+      name != null,
       "Name cannot be null or undefined"
     );
+
+    super(delimiter || DEFAULT_DELIMITER);
+    this.name = name;
+    this.noComponents = this.splitComponents(this.name, this.delimiter).length;
+
     InvalidStateException.assert(
       this.noComponents != null,
       "noComponents cannot be null or undefined"
@@ -35,6 +27,21 @@ export class StringName extends AbstractName {
       this.noComponents === this.getNoComponents(),
       "noComponents is not === to the noComponents in Name"
     );
+  }
+
+  public clone(): Name {
+    return new StringName(this.name, this.getDelimiterCharacter());
+  }
+
+  public toString(): string {
+    return this.joinWithEscape(this.splitComponents(this.name));
+  }
+
+  // use escape logic
+  public asString(delimiter?: string): string {
+    delimiter = delimiter ?? this.getDelimiterCharacter();
+    this.assertHasValidDelimiter(delimiter);
+    return this.escapeDelimiter(this.name);
   }
 
   public getNoComponents(): number {
@@ -56,10 +63,17 @@ export class StringName extends AbstractName {
 
     const components = this.splitComponents(this.name, this.delimiter);
     components[i] = c;
-    const newName = this.asStringName(components);
 
-    this.assertIsValidComponent("set", c, i, this.name, this.noComponents);
-    return new StringName(newName, this.delimiter);
+    // Postcondition Validation for value-type-objects
+    const expectedComponents = [...components];
+    if (expectedComponents[i] !== c) {
+      throw new MethodFailedException("Set component validation failed");
+    }
+
+    return new StringName(
+      this.joinWithEscape(components),
+      this.getDelimiterCharacter()
+    );
   }
 
   public insert(i: number, c: string): Name {
@@ -71,10 +85,19 @@ export class StringName extends AbstractName {
 
     const components = this.splitComponents(this.name, this.delimiter);
     components.splice(i, 0, c);
-    const newName = this.asStringName(components);
 
-    this.assertIsValidComponent("insert", c, i, this.name, this.noComponents);
-    return new StringName(newName, this.delimiter);
+    // Postcondition Validation
+    if (
+      components[i] !== c ||
+      components.length !== this.getNoComponents() + 1
+    ) {
+      throw new MethodFailedException("Insert component validation failed");
+    }
+
+    return new StringName(
+      this.joinWithEscape(components),
+      this.getDelimiterCharacter()
+    );
   }
 
   public append(c: string): Name {
@@ -82,39 +105,66 @@ export class StringName extends AbstractName {
       c != null,
       "Component cannot be null or undefined"
     );
-
     const newName = this.name + this.getDelimiterCharacter() + c;
-    this.assertIsValidComponent(
-      "append",
-      c,
-      undefined,
-      this.name,
-      this.noComponents
+
+    // Postcondition Validation
+    const newComponents = this.splitComponents(
+      newName,
+      this.getDelimiterCharacter()
     );
-    return new StringName(newName, this.delimiter);
+    if (
+      newComponents[newComponents.length - 1] !== c ||
+      newComponents.length !== this.noComponents + 1
+    ) {
+      throw new MethodFailedException("Append component validation failed");
+    }
+
+    return new StringName(
+      this.escapeDelimiter(newName),
+      this.getDelimiterCharacter()
+    );
   }
 
   public remove(i: number): Name {
     this.assertHasValidIndex(i);
 
-    const components = this.splitComponents(this.name, this.delimiter);
-    components.splice(i, 1);
-    const newName = this.asStringName(components);
+    const components = this.splitComponents(
+      this.name,
+      this.getDelimiterCharacter()
+    );
+    const removedComponent = components.splice(i, 1);
 
-    this.assertIsValidComponent("remove", null, i, this.name, this.noComponents);
-    return new StringName(newName, this.delimiter);
+    // Postcondition Validation
+    if (
+      components.includes(removedComponent[0]) ||
+      components.length !== this.noComponents - 1
+    ) {
+      throw new MethodFailedException("Remove component validation failed");
+    }
+
+    return new StringName(
+      this.joinWithEscape(components),
+      this.getDelimiterCharacter()
+    );
   }
 
   public concat(other: Name): Name {
-    IllegalArgumentException.assert(other != null, "Other cannot be null or undefined");
-    IllegalArgumentException.assert(this.getDelimiterCharacter() === other.getDelimiterCharacter(), "Dellimiter chars must match for concatenation");
-    
-    const combinedName = this.name + this.getDelimiterCharacter() + other.asString();
+    IllegalArgumentException.assert(
+      other != null,
+      "Other cannot be null or undefined"
+    );
+    IllegalArgumentException.assert(
+      this.getDelimiterCharacter() === other.getDelimiterCharacter(),
+      "Dellimiter chars must match for concatenation"
+    );
+
+    const combinedName =
+      this.name + this.getDelimiterCharacter() + other.asString();
 
     return new StringName(combinedName, this.delimiter);
   }
 
-  /** @methodtype mutable-method to split components into array using a delimiter */
+  /** @methodtype helper-methods to split components using a delimiter */
   protected splitComponents(
     str: string,
     delimiter: string = this.getDelimiterCharacter()
@@ -130,17 +180,30 @@ export class StringName extends AbstractName {
     return str.split(regex);
   }
 
-  /** @methodtype helper-method to create a string array anme */
-  protected asStringArrayName(str: string = this.name): string[] {
-    return this.splitComponents(str, this.getDelimiterCharacter());
+  /** @methodtype helper-methods to split components using a delimiter */
+  protected joinWithEscape(components: string[]): string {
+    return components
+      .map((c) =>
+        c.replace(
+          this.getDelimiterCharacter(),
+          `${ESCAPE_CHARACTER}${this.getDelimiterCharacter()}`
+        )
+      )
+      .join(this.getDelimiterCharacter());
   }
 
-  /** @methodtype helper-method to combine string array into a delimited string */
-  protected asStringName(
-    stringArrayName: string[],
-    delimiter: string = this.getDelimiterCharacter()
-  ): string {
-    return stringArrayName.join(delimiter);
+  /** @methodtype helper-methods to split components using a delimiter */
+  protected escapeDelimiter(str: string): string {
+    // Dynamisch den aktuellen Delimiter escapen
+    const escapedDelimiter = this.getDelimiterCharacter().replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
+    const regex = new RegExp(escapedDelimiter, "g");
+    return str.replace(
+      regex,
+      `${ESCAPE_CHARACTER}${this.getDelimiterCharacter()}`
+    );
   }
 
   // methods for assertions (preconditions)
@@ -154,74 +217,5 @@ export class StringName extends AbstractName {
       i >= 0 && i < noComponents,
       `Index ${i} is out of bounds. Valid range: 0-${noComponents - 1}`
     );
-}
-
-
-  // methods for assertions (post-conditions)
-  protected assertIsValidNameState(name: string): void {
-    const cond = this.name === name;
-    MethodFailedException.assert(cond, "StringName validation failed");
-  }
-
-  protected assertIsValidComponent(
-    operationType: "set" | "insert" | "append" | "remove",
-    component: string | null,
-    index: number | undefined,
-    original: string,
-    originalNoComponents: number
-  ): void {
-    const originalComponents = this.asStringArrayName(original); //TODO: Changed concept to undefined
-    const currentComponents = this.asStringArrayName();
-    const expectedNoComponents =
-      operationType === "set"
-        ? originalNoComponents
-        : operationType === "insert" || operationType === "append"
-        ? originalNoComponents + 1
-        : operationType === "remove"
-        ? originalNoComponents - 1
-        : originalNoComponents;
-
-    if (currentComponents.length !== expectedNoComponents) {
-      MethodFailedException.assert(false, "Component count validation failed");
-    }
-
-    switch (operationType) {
-      case "set":
-        if (index !== undefined && currentComponents[index] !== component) {
-          MethodFailedException.assert(
-            false,
-            "Set component validation failed"
-          );
-        }
-        break;
-
-      case "insert":
-        if (
-          index === undefined ||
-          index < 0 ||
-          index >= currentComponents.length
-        ) {
-          MethodFailedException.assert(false, "Insert index is invalid");
-        }
-        break;
-
-      case "remove":
-        if (index === undefined || index < 0 || index >= originalNoComponents) {
-          MethodFailedException.assert(false, "Remove index is invalid");
-        }
-        break;
-
-      case "append":
-        if (currentComponents[originalNoComponents] !== component) {
-          MethodFailedException.assert(
-            false,
-            "Append component validation failed"
-          );
-        }
-        break;
-
-      default:
-        MethodFailedException.assert(false, "Unknown operation type");
-    }
   }
 }

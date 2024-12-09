@@ -7,45 +7,18 @@ import { Name } from "./Name";
 export abstract class AbstractName implements Name {
   protected readonly delimiter: string;
 
-  constructor(delimiter: string = DEFAULT_DELIMITER) {
-    this.assertHasValidDelimiter(delimiter);
+  constructor(delimiter: string) {
+    IllegalArgumentException.assert(
+      delimiter.length === 1 && delimiter !== ESCAPE_CHARACTER,
+      "delimiter must be a single char and cannot be the escape character"
+    );
+
     this.delimiter = delimiter;
-    this.assertAbstractNameIsValid();
-  }
 
-  // methods for assertions (class invariants)
-  protected assertAbstractNameIsValid() {
-    InvalidStateException.assert(this.delimiter != null, "delimiter cannot be null or undefined");
-  }
-
-  public clone(): Name {
-    // New instance based on the constructor of the derived class
-    const cloned = new (this.constructor as { new(delimiter: string): Name})(this.getDelimiterCharacter());
-
-    for (let i = 0; i < this.getNoComponents(); i++) {
-      cloned.setComponent(i, this.getComponent(i)); //TODO: maybe not working -> addComponent(components: string[]): Name??
-    }
-
-    this.assertIsValidCloned(cloned);
-    return cloned;
-  }
-
-  public asString(delimiter?: string): string {
-    delimiter = delimiter ?? this.delimiter;
-    this.assertHasValidDelimiter(delimiter); //pre-con
-
-    const components: string[] = [];
-    //TODO: refactor to more Array.from({}, () => {}) arrow-function-style?
-    for (let i = 0; i < this.getNoComponents(); i++) {
-        const component = this.getComponent(i);   
-        components.push(component.replaceAll(`${ESCAPE_CHARACTER}${this.getDelimiterCharacter()}`, this.getDelimiterCharacter()));
-    }
-
-    return components.join(delimiter);
-}
-  
-  public toString(): string {
-    return this.asDataString();
+    InvalidStateException.assert(
+      this.delimiter != null,
+      "this.delimiter cannot be null or undefined"
+    );
   }
 
   public asDataString(): string {
@@ -53,8 +26,10 @@ export abstract class AbstractName implements Name {
     const escapeWithDelimiter = ESCAPE_CHARACTER + this.getDelimiterCharacter();
 
     for (let i = 0; i < this.getNoComponents(); i++) {
-      const component = this.getComponent(i)
-        .replaceAll(this.getDelimiterCharacter(), escapeWithDelimiter);
+      const component = this.getComponent(i).replaceAll(
+        this.getDelimiterCharacter(),
+        escapeWithDelimiter
+      );
       components.push(component);
     }
 
@@ -102,40 +77,43 @@ export abstract class AbstractName implements Name {
   public getDelimiterCharacter(): string {
     return this.delimiter;
   }
+  
+  abstract clone(): Name; 
+
+  abstract asString(delimiter?: string): string;
+  abstract toString(): string;
 
   abstract getNoComponents(): number;
 
   abstract getComponent(i: number): string;
-  abstract setComponent(i: number, c: string): void;
+  abstract setComponent(i: number, c: string): Name;
 
-  abstract insert(i: number, c: string): void;
-  abstract append(c: string): void;
-  abstract remove(i: number): void;
+  abstract insert(i: number, c: string): Name;
+  abstract append(c: string): Name;
+  abstract remove(i: number): Name;
   abstract concat(other: Name): Name;
 
   // methods for assertions (preconditions)
   protected assertHasValidDelimiter(delimiter: string): void {
-    IllegalArgumentException.assert(this.delimiter != null,
-      "delimiter cannot be null or undefined"
-    );
-    const cond = delimiter.length === 1 && delimiter !== ESCAPE_CHARACTER;
     IllegalArgumentException.assert(
-      cond,
-      "delimiter must be a single char and cannot be the escape character"
+      delimiter != null,
+      "delimiter cannot be null or undefined"
     );
   }
 
   // methods for assertions (post-conditions)
   protected assertIsValidCloned(cloned: Name): void {
+    MethodFailedException.assert(cloned.isEmpty(), "clone is empty");
     MethodFailedException.assert(
-      cloned.isEmpty(),
-      "clone is empty"
+      this.isEqual(cloned) && this !== cloned,
+      "Clone validation failed"
     );
-    MethodFailedException.assert((this.isEqual(cloned) && this !== cloned), "Clone validation failed");
   }
 
   protected assertIsValidHashCode(other: Name): void {
-    MethodFailedException.assert((other.getHashCode() === this.getHashCode()), "HashCode validation failed");
+    MethodFailedException.assert(
+      other.getHashCode() === this.getHashCode(),
+      "HashCode validation failed"
+    );
   }
-
 }
